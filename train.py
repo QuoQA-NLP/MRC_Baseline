@@ -39,7 +39,7 @@ def main():
 
     DATASETS_AUTH_KEY = os.getenv("DATASETS_AUTH_KEY")
 
-    dset = load_dataset(data_args.data_path, use_auth_token=True, download_mode="force_redownload")
+    dset = load_dataset(data_args.data_path, use_auth_token=True)
     print(dset)
 
     CPU_COUNT = multiprocessing.cpu_count() // 2
@@ -62,7 +62,7 @@ def main():
         remove_columns=train_dset.column_names,
     )
 
-    if training_args.do_eval:
+    if training_args.use_validation:
 
         validation_dset = copy.deepcopy(dset["validation"])
         dset["validation"] = dset["validation"].map(
@@ -114,7 +114,7 @@ def main():
     metric = Metric()
     compute_metric = metric.compute_metrics
 
-    if training_args.do_eval:
+    if training_args.use_validation:
         trainer = QuestionAnsweringTrainer(  # the instantiated 🤗 Transformers model to be trained
             model=model,  # model
             args=training_args,  # training arguments, defined above
@@ -126,7 +126,7 @@ def main():
             compute_metrics=compute_metric,  # define metrics function
             post_process_function=post_process_function,  # post process function
         )
-    elif not training_args.do_eval:
+    elif not training_args.use_validation:
         trainer = QuestionAnsweringTrainer(  # the instantiated 🤗 Transformers model to be trained
             model=model,  # model
             args=training_args,  # training arguments, defined above
@@ -146,7 +146,7 @@ def main():
         trainer.save_metrics("train", metrics)
 
     # -- Evalute
-    if training_args.do_eval:
+    if training_args.use_validation:
         evaluation_metrics = trainer.evaluate()
 
         trainer.log_metrics("eval", evaluation_metrics)

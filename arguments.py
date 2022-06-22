@@ -41,7 +41,7 @@ class MyTrainingArguments(TrainingArguments):
     max_answer_length: Optional[int] = field(
         default=30, metadata={"help": "Maximum length of answer after post processing"}
     )
-    do_eval: bool = field(
+    use_validation: bool = field(
         default=False, metadata={"help": "Use validation dataset"},
     )
 

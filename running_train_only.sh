@@ -3,10 +3,11 @@ python train.py \
 --do_train \
 --group_name reproduction \
 --data_path QuoQA-NLP/train-only \
+--use_validation False \
 --PLM klue/roberta-large \
 --model_category roberta \
 --model_name RobertaForV2QuestionAnswering \
---max_length 512 \
+--max_length 450 \
 --stride 128 \
 --logging_strategy steps \
 --logging_steps 100 \
@@ -17,14 +18,12 @@ python train.py \
 --save_total_limit 10 \
 --output_dir ./exps \
 --logging_dir ./logs \
---learning_rate 1e-5 \
+--learning_rate 2e-5 \
 --num_train_epochs 5 \
 --max_steps 3000 \
---per_device_train_batch_size 16 \
---per_device_eval_batch_size 16 \
---gradient_accumulation_steps 2 \
---load_best_model_at_end \
---metric_for_best_model best_exact \
+--per_device_train_batch_size 4 \
+--per_device_eval_batch_size 4 \
+--gradient_accumulation_steps 8 \
 --warmup_ratio 0.05 \
 --weight_decay 1e-2
 
