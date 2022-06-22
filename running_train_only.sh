@@ -7,7 +7,7 @@ python train.py \
 --PLM klue/roberta-large \
 --model_category roberta \
 --model_name RobertaForV2QuestionAnswering \
---max_length 512 \
+--max_length 460 \
 --stride 128 \
 --save_strategy steps \
 --save_steps 250 \
@@ -18,9 +18,9 @@ python train.py \
 --learning_rate 1e-5 \
 --num_train_epochs 5 \
 --max_steps 3000 \
---per_device_train_batch_size 16 \
---gradient_accumulation_steps 2 \
---warmup_ratio 0.05 \
+--per_device_train_batch_size 32 \
+--gradient_accumulation_steps 1 \
+--warmup_ratio 0.10 \
 --weight_decay 1e-2 \
 --gradient_checkpointing \
 --seed 42

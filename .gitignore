@@ -1,6 +1,7 @@
 __pycache__
 wandb.env
 results
+exps_batch16_grad2
 exps
 saving
 checkpoints
