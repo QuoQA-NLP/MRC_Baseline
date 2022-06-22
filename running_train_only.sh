@@ -7,7 +7,7 @@ python train.py \
 --PLM klue/roberta-large \
 --model_category roberta \
 --model_name RobertaForV2QuestionAnswering \
---max_length 450 \
+--max_length 512 \
 --stride 128 \
 --save_strategy steps \
 --save_steps 250 \
@@ -18,19 +18,21 @@ python train.py \
 --learning_rate 1e-5 \
 --num_train_epochs 5 \
 --max_steps 3000 \
---per_device_train_batch_size 32 \
+--per_device_train_batch_size 16 \
+--gradient_accumulation_steps 2 \
 --warmup_ratio 0.05 \
 --weight_decay 1e-2 \
---gradient_checkpointing
+--gradient_checkpointing \
+--seed 42
 
-python inference.py \
---do_predict \
---PLM checkpoints \
---model_category roberta \
---model_name RobertaForV2QuestionAnswering \
---max_length 512 \
---stride 128 \
---output_dir results \
---overwrite_output_dir \
---per_device_eval_batch_size 16 \
---file_name roberta_base_EP:5_BS:16_WR:0.05_WD:1e-3.csv
+# python inference.py \
+# --do_predict \
+# --PLM checkpoints \
+# --model_category roberta \
+# --model_name RobertaForV2QuestionAnswering \
+# --max_length 512 \
+# --stride 128 \
+# --output_dir results \
+# --overwrite_output_dir \
+# --per_device_eval_batch_size 16 \
+# --file_name roberta_base_EP:5_BS:16_WR:0.05_WD:1e-3.csv
