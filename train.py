@@ -38,10 +38,8 @@ def main():
     load_dotenv(dotenv_path=logging_args.dotenv_path)
 
     DATASETS_AUTH_KEY = os.getenv("DATASETS_AUTH_KEY")
-    
-    dset = load_dataset(
-        data_args.data_path, use_auth_token=True, download_mode="force_redownload"
-    )
+
+    dset = load_dataset(data_args.data_path, use_auth_token=True, download_mode="force_redownload")
     print(dset)
 
     CPU_COUNT = multiprocessing.cpu_count() // 2
@@ -64,25 +62,25 @@ def main():
         remove_columns=train_dset.column_names,
     )
 
-    if data_args.use_validation:
- 
+    if training_args.do_eval:
+
         validation_dset = copy.deepcopy(dset["validation"])
         dset["validation"] = dset["validation"].map(
             preprocessor.preprocess_validation, batched=True, num_proc=CPU_COUNT
         )
 
         validation_dset = validation_dset.map(
-        encoder.prepare_validation_features,
-        batched=True,
-        num_proc=CPU_COUNT,
-        remove_columns=validation_dset.column_names,
+            encoder.prepare_validation_features,
+            batched=True,
+            num_proc=CPU_COUNT,
+            remove_columns=validation_dset.column_names,
         )
-    
+
     # -- Config & Model Class
     config = AutoConfig.from_pretrained(model_args.PLM)
 
     MODEL_NAME = training_args.model_name
-    
+
     model_category = importlib.import_module("models." + MODEL_CATEGORY)
     model_class = getattr(model_category, MODEL_NAME)
 
