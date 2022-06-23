@@ -1,6 +1,6 @@
 python inference.py \
 --do_predict \
---PLM /root/reproducibility_code/exps/checkpoint-875 \
+--PLM /USER/exps/checkpoint-875 \
 --model_category roberta \
 --model_name RobertaForV2QuestionAnswering \
 --max_length 460 \
@@ -8,4 +8,4 @@ python inference.py \
 --output_dir ./RESULTS \
 --overwrite_output_dir \
 --per_device_eval_batch_size 32 \
---file_name final_output.csv
+--file_name final_submission.csv
