@@ -7,7 +7,6 @@ import pandas as pd
 import importlib
 import copy
 import multiprocessing
-from dotenv import load_dotenv
 from datasets import load_dataset
 from utils.loader import Loader
 from utils.metric import Metric

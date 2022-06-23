@@ -112,6 +112,10 @@ USER/
 │   ├── checkpoint-750/
 │   └── checkpoint-875/
 │
+├── mecab-0.996-ko-0.9.2/
+│
+├── mecab-ko-dic-2.1.1-20180720/
+│
 └── RESULT * Output 상세설명 *
     ├── final_submission.csv
     └── checkpoint-875
@@ -228,34 +232,34 @@ USER/
 
 ### running_train_only.sh Argument 설명
 
-|      argument       | description                                                                                   |
-| :-----------------: | :-------------------------------------------------------------------------------------------- | 
-| do_train|모델을 훈련할지 여부 결정합니다.|
-| group_name|wandb 그룹 이름 지정합니다.|
-|data_path|Nipa dataset 선택합니다.|
-|use_validation|validation을 수행할지 여부 결정|
-|PLM|모델 PLM 결정합니다.|
-|model_category|models 폴더 안에 사용할 파일 선택합니다.|
-|model_name|model_category에서 선택한 파일에서 세부 class 선택합니다.|
-|max_length|최대 길이 지정합니다.|
-|save_strategy|step or epoch 기준 등으로 저장하는 방식을 정합니다.|
-|save_total_limit|최대 checkpoint 저장 갯수를 지정합니다.|
-|learning_rate|훈련 learning rate를 지정합니다.|
-|per_device_train_batch_size|train batch size를 지정합니다.|
-|per_device_eval_batch_size|eval batch size를 지정합니다.|
-|gradient_accumulation_steps|gradient accumulation 수를 정합니다.|
-|gradient_checkpointing|gradient checkpoint 여부를 정합니다.|
-|max_steps|학습 최대 step을 지정합니다.|
+|          argument           | description                                               |
+| :-------------------------: | :-------------------------------------------------------- |
+|          do_train           | 모델을 훈련할지 여부 결정합니다.                          |
+|         group_name          | wandb 그룹 이름 지정합니다.                               |
+|          data_path          | Nipa dataset 선택합니다.                                  |
+|       use_validation        | validation을 수행할지 여부 결정                           |
+|             PLM             | 모델 PLM 결정합니다.                                      |
+|       model_category        | models 폴더 안에 사용할 파일 선택합니다.                  |
+|         model_name          | model_category에서 선택한 파일에서 세부 class 선택합니다. |
+|         max_length          | 최대 길이 지정합니다.                                     |
+|        save_strategy        | step or epoch 기준 등으로 저장하는 방식을 정합니다.       |
+|      save_total_limit       | 최대 checkpoint 저장 갯수를 지정합니다.                   |
+|        learning_rate        | 훈련 learning rate를 지정합니다.                          |
+| per_device_train_batch_size | train batch size를 지정합니다.                            |
+| per_device_eval_batch_size  | eval batch size를 지정합니다.                             |
+| gradient_accumulation_steps | gradient accumulation 수를 정합니다.                      |
+|   gradient_checkpointing    | gradient checkpoint 여부를 정합니다.                      |
+|          max_steps          | 학습 최대 step을 지정합니다.                              |
 
 
 ### running_inference_only.sh Argument 설명
 
-|      argument       | description                                                                                   |
-| :-----------------: | :-------------------------------------------------------------------------------------------- | 
-| do_predict|주어진 데이터에 대해 예측할지 말지를 결정합니다.|
-|PLM|원하는 가중치 모델을 가져옵니다.|
-|model_category|models 폴더 안에 사용할 파일 선택합니다.|
-|model_name|model_category에서 선택한 파일에서 세부 class 선택합니다.|
-|max_length|최대 길이 지정합니다.|
-|output_dir|예측값을 저장할 경로를 설정합니다.|
-|file_name|예측값에 대한 파일 이름을 지정합니다.|
+|    argument    | description                                               |
+| :------------: | :-------------------------------------------------------- |
+|   do_predict   | 주어진 데이터에 대해 예측할지 말지를 결정합니다.          |
+|      PLM       | 원하는 가중치 모델을 가져옵니다.                          |
+| model_category | models 폴더 안에 사용할 파일 선택합니다.                  |
+|   model_name   | model_category에서 선택한 파일에서 세부 class 선택합니다. |
+|   max_length   | 최대 길이 지정합니다.                                     |
+|   output_dir   | 예측값을 저장할 경로를 설정합니다.                        |
+|   file_name    | 예측값에 대한 파일 이름을 지정합니다.                     |
