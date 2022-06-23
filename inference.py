@@ -150,7 +150,7 @@ def main():
 
     submission_df["answer_text"] = answer_texts
     submission_df.to_csv(
-        os.path.join('/RESULT', 'predictions.csv'), index=False
+        os.path.join('/RESULT', inference_args.file_name), index=False
     )
 
 

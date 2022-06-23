@@ -34,7 +34,7 @@ def main():
 
     # -- Loading datasets
 
-    with open("questino_ids.json", "r") as f :
+    with open("question_ids.json", "r") as f :
        question_id_orders = json.load(f)
     
     loader = Loader("/DATA")

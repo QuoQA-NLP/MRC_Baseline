@@ -122,6 +122,7 @@ class Loader :
             "question" : questions,
             "context" : contexts}
         )
+        dataset = DatasetDict({"test" : dataset})
         return dataset
 
 
