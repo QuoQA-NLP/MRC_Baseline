@@ -1,5 +1,5 @@
 import os
-import wandb
+import json
 import torch
 import random
 import numpy as np
@@ -8,10 +8,11 @@ import copy
 import multiprocessing
 from dotenv import load_dotenv
 from datasets import load_dataset
-from utils.postprocessor import post_process_function
+from utils.loader import Loader
 from utils.metric import Metric
 from utils.encoder import Encoder
 from utils.preprocessor import Preprocessor
+from utils.postprocessor import post_process_function
 from trainer import QuestionAnsweringTrainer
 from arguments import ModelArguments, DataTrainingArguments, MyTrainingArguments, LoggingArguments
 
@@ -24,7 +25,6 @@ from transformers import (
     T5Tokenizer,
 )
 
-
 def main():
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, MyTrainingArguments, LoggingArguments)
@@ -32,18 +32,17 @@ def main():
     model_args, data_args, training_args, logging_args = parser.parse_args_into_dataclasses()
     seed_everything(training_args.seed)
 
-    load_dotenv(dotenv_path=logging_args.dotenv_path)
+    # -- Loading datasets
 
-    # -- Loading datasets (prototype : korquad dataset)
-    load_dotenv(dotenv_path=logging_args.dotenv_path)
-
-    DATASETS_AUTH_KEY = os.getenv("DATASETS_AUTH_KEY")
-
-    dset = load_dataset(data_args.data_path, use_auth_token=True)
+    with open("question_ids.json", "r") as f :
+       question_id_orders = json.load(f)
+    
+    loader = Loader("/DATA")
+    dset = loader.load_train_data(question_id_orders=question_id_orders)
     print(dset)
 
-    CPU_COUNT = multiprocessing.cpu_count() // 2
-    MODEL_CATEGORY = model_args.model_category  ## roberta, t5, electra, bert, retro
+    CPU_COUNT = 6
+    MODEL_CATEGORY = model_args.model_category  
 
     # -- Preprocessing
     preprocessor = Preprocessor(model_category=MODEL_CATEGORY)
@@ -90,27 +89,6 @@ def main():
     # -- Model
     model = model_class.from_pretrained(model_args.PLM, config=config)
 
-    # # -- Wandb
-    WANDB_AUTH_KEY = os.getenv("WANDB_AUTH_KEY")
-    wandb.login(key=WANDB_AUTH_KEY)
-
-    if training_args.max_steps == -1:
-        name = f"EP:{training_args.num_train_epochs}_"
-    else:
-        name = f"MS:{training_args.max_steps}_"
-
-    name += f"LR:{training_args.learning_rate}_BS:{training_args.per_device_train_batch_size}_WR:{training_args.warmup_ratio}_WD:{training_args.weight_decay}_"
-    name += MODEL_NAME
-    name += model_args.PLM
-
-    wandb.init(
-        entity="quoqa-nlp",
-        project=logging_args.project_name,
-        group=logging_args.group_name,
-        name=name,
-    )
-    wandb.config.update(training_args)
-
     metric = Metric()
     compute_metric = metric.compute_metrics
 
@@ -153,7 +131,6 @@ def main():
         trainer.save_metrics("eval", evaluation_metrics)
 
     trainer.save_model(model_args.save_path)
-    wandb.finish()
 
 
 def seed_everything(seed):

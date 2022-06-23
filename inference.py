@@ -9,9 +9,11 @@ import copy
 import multiprocessing
 from dotenv import load_dotenv
 from datasets import load_dataset
-from utils.postprocessor import post_process_function
+from utils.loader import Loader
+from utils.metric import Metric
 from utils.encoder import Encoder
 from utils.preprocessor import Preprocessor
+from utils.postprocessor import post_process_function
 from trainer import QuestionAnsweringTrainer
 from arguments import ModelArguments, DataTrainingArguments, MyTrainingArguments, InferenceArguments
 from tqdm import tqdm
@@ -32,13 +34,12 @@ def main():
     model_args, data_args, training_args, inference_args = parser.parse_args_into_dataclasses()
     seed_everything(training_args.seed)
 
-    # -- Loading datasets (prototype : korquad dataset)
-    load_dotenv(dotenv_path=inference_args.dotenv_path)
-    DATASETS_AUTH_KEY = os.getenv("DATASETS_AUTH_KEY")
-    dset = load_dataset("QuoQA-NLP/nipa-mrc-test", use_auth_token=True)
+    # -- Loading datasets
+    loader = Loader("/DATA")
+    dset = loader.load_test_data()
     print(dset)
 
-    CPU_COUNT = multiprocessing.cpu_count() // 2
+    CPU_COUNT = 6
     MODEL_CATEGORY = model_args.model_category  ## roberta, t5, electra, bert, retro
 
     # -- Tokenizing & Encoding
@@ -64,7 +65,7 @@ def main():
 
     # -- Config & Model Class
     MODEL_CATEGORY = model_args.model_category  ## roberta, t5, electra, bert, retro
-    MODEL_NAME = training_args.model_name  ## RobertaForV2QuestionAnswering ...
+    MODEL_NAME = training_args.model_name       ## RobertaForV2QuestionAnswering ...
 
     if MODEL_NAME == "base":
         model_class = AutoModelForQuestionAnswering
@@ -110,6 +111,7 @@ def main():
 
         mean_predictions = (is_impossible_logits, start_logits, end_logits)
         predictions = trainer.predict(test_dataset=test_dset, test_examples=dset["test"], predictions=mean_predictions)
+    
     # -- Predictions single model
     else :
         config = AutoConfig.from_pretrained(PLM)
@@ -139,7 +141,7 @@ def main():
             mapping[quid] = text
 
     # --Submission
-    submission_df = pd.read_csv("./data/sample_submission.csv")
+    submission_df = pd.read_csv("/DATA/sample_submission.csv")
     question_ids = submission_df["question_id"]
     answer_texts = []
 
@@ -148,7 +150,7 @@ def main():
 
     submission_df["answer_text"] = answer_texts
     submission_df.to_csv(
-        os.path.join(training_args.output_dir, inference_args.file_name), index=False
+        os.path.join('/USER/RESULT', inference_args.file_name), index=False
     )
 
 
