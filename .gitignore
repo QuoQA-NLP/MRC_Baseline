@@ -8,7 +8,6 @@ checkpoints
 wandb
 eda.ipynb
 datasets
-*.json
 *.ipynb
 _clones
 logs

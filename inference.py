@@ -9,9 +9,11 @@ import copy
 import multiprocessing
 from dotenv import load_dotenv
 from datasets import load_dataset
-from utils.postprocessor import post_process_function
+from utils.loader import Loader
+from utils.metric import Metric
 from utils.encoder import Encoder
 from utils.preprocessor import Preprocessor
+from utils.postprocessor import post_process_function
 from trainer import QuestionAnsweringTrainer
 from arguments import ModelArguments, DataTrainingArguments, MyTrainingArguments, InferenceArguments
 from tqdm import tqdm
@@ -32,10 +34,9 @@ def main():
     model_args, data_args, training_args, inference_args = parser.parse_args_into_dataclasses()
     seed_everything(training_args.seed)
 
-    # -- Loading datasets (prototype : korquad dataset)
-    load_dotenv(dotenv_path=inference_args.dotenv_path)
-    DATASETS_AUTH_KEY = os.getenv("DATASETS_AUTH_KEY")
-    dset = load_dataset("QuoQA-NLP/nipa-mrc-test", use_auth_token=True)
+    # -- Loading datasets
+    loader = Loader("/DATA")
+    dset = loader.load_test_data()
     print(dset)
 
     CPU_COUNT = multiprocessing.cpu_count() // 2
@@ -139,7 +140,7 @@ def main():
             mapping[quid] = text
 
     # --Submission
-    submission_df = pd.read_csv("./data/sample_submission.csv")
+    submission_df = pd.read_csv("/DATA/sample_submission.csv")
     question_ids = submission_df["question_id"]
     answer_texts = []
 

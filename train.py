@@ -8,10 +8,11 @@ import copy
 import multiprocessing
 from dotenv import load_dotenv
 from datasets import load_dataset
-from utils.postprocessor import post_process_function
+from utils.loader import Loader
 from utils.metric import Metric
 from utils.encoder import Encoder
 from utils.preprocessor import Preprocessor
+from utils.postprocessor import post_process_function
 from trainer import QuestionAnsweringTrainer
 from arguments import ModelArguments, DataTrainingArguments, MyTrainingArguments, LoggingArguments
 
@@ -24,7 +25,6 @@ from transformers import (
     T5Tokenizer,
 )
 
-
 def main():
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, MyTrainingArguments, LoggingArguments)
@@ -32,18 +32,17 @@ def main():
     model_args, data_args, training_args, logging_args = parser.parse_args_into_dataclasses()
     seed_everything(training_args.seed)
 
-    load_dotenv(dotenv_path=logging_args.dotenv_path)
+    # -- Loading datasets
 
-    # -- Loading datasets (prototype : korquad dataset)
-    load_dotenv(dotenv_path=logging_args.dotenv_path)
-
-    DATASETS_AUTH_KEY = os.getenv("DATASETS_AUTH_KEY")
-
-    dset = load_dataset(data_args.data_path, use_auth_token=True)
+    with open("questino_ids.json", "r") as f :
+       question_id_orders = json.load(f)
+    
+    loader = Loader("/DATA")
+    dset = loader.load_train_data(question_id_orders=question_id_orders)
     print(dset)
 
     CPU_COUNT = multiprocessing.cpu_count() // 2
-    MODEL_CATEGORY = model_args.model_category  ## roberta, t5, electra, bert, retro
+    MODEL_CATEGORY = model_args.model_category  
 
     # -- Preprocessing
     preprocessor = Preprocessor(model_category=MODEL_CATEGORY)
@@ -54,7 +53,7 @@ def main():
 
     tokenizer = AutoTokenizer.from_pretrained(model_args.PLM)
     encoder = Encoder(tokenizer, stride=data_args.stride, max_length=data_args.max_length)
-
+    
     train_dset = train_dset.map(
         encoder.prepare_train_features,
         batched=True,

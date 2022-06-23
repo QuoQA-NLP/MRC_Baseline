@@ -19,8 +19,8 @@ class Preprocessor:
                 answer_texts.append("")
                 answer_starts.append(0)
             else:
-                answer_texts.append(answer["text"][0])
-                answer_starts.append(answer["answer_start"][0])
+                answer_texts.append(answer[0]["text"])
+                answer_starts.append(answer[0]["answer_start"])
 
         datasets["answer_text"] = answer_texts
         datasets["answer_start"] = answer_starts
