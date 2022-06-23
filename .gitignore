@@ -12,3 +12,4 @@ datasets
 *.ipynb
 _clones
 logs
+exps_batch32
