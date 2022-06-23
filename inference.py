@@ -65,7 +65,7 @@ def main():
 
     # -- Config & Model Class
     MODEL_CATEGORY = model_args.model_category  ## roberta, t5, electra, bert, retro
-    MODEL_NAME = training_args.model_name  ## RobertaForV2QuestionAnswering ...
+    MODEL_NAME = training_args.model_name       ## RobertaForV2QuestionAnswering ...
 
     if MODEL_NAME == "base":
         model_class = AutoModelForQuestionAnswering
@@ -111,6 +111,7 @@ def main():
 
         mean_predictions = (is_impossible_logits, start_logits, end_logits)
         predictions = trainer.predict(test_dataset=test_dset, test_examples=dset["test"], predictions=mean_predictions)
+    
     # -- Predictions single model
     else :
         config = AutoConfig.from_pretrained(PLM)
@@ -149,7 +150,7 @@ def main():
 
     submission_df["answer_text"] = answer_texts
     submission_df.to_csv(
-        os.path.join(training_args.output_dir, inference_args.file_name), index=False
+        os.path.join('/RESULT', 'predictions.csv'), index=False
     )
 
 
