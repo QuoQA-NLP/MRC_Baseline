@@ -1,6 +1,5 @@
 import os
 import json
-import wandb
 import torch
 import random
 import numpy as np
@@ -90,27 +89,6 @@ def main():
     # -- Model
     model = model_class.from_pretrained(model_args.PLM, config=config)
 
-    # # -- Wandb
-    WANDB_AUTH_KEY = os.getenv("WANDB_AUTH_KEY")
-    wandb.login(key=WANDB_AUTH_KEY)
-
-    if training_args.max_steps == -1:
-        name = f"EP:{training_args.num_train_epochs}_"
-    else:
-        name = f"MS:{training_args.max_steps}_"
-
-    name += f"LR:{training_args.learning_rate}_BS:{training_args.per_device_train_batch_size}_WR:{training_args.warmup_ratio}_WD:{training_args.weight_decay}_"
-    name += MODEL_NAME
-    name += model_args.PLM
-
-    wandb.init(
-        entity="quoqa-nlp",
-        project=logging_args.project_name,
-        group=logging_args.group_name,
-        name=name,
-    )
-    wandb.config.update(training_args)
-
     metric = Metric()
     compute_metric = metric.compute_metrics
 
@@ -153,7 +131,6 @@ def main():
         trainer.save_metrics("eval", evaluation_metrics)
 
     trainer.save_model(model_args.save_path)
-    wandb.finish()
 
 
 def seed_everything(seed):
