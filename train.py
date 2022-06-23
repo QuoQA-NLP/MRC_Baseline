@@ -1,4 +1,5 @@
 import os
+import json
 import wandb
 import torch
 import random
@@ -41,7 +42,7 @@ def main():
     dset = loader.load_train_data(question_id_orders=question_id_orders)
     print(dset)
 
-    CPU_COUNT = multiprocessing.cpu_count() // 2
+    CPU_COUNT = 6
     MODEL_CATEGORY = model_args.model_category  
 
     # -- Preprocessing
@@ -53,7 +54,7 @@ def main():
 
     tokenizer = AutoTokenizer.from_pretrained(model_args.PLM)
     encoder = Encoder(tokenizer, stride=data_args.stride, max_length=data_args.max_length)
-    
+
     train_dset = train_dset.map(
         encoder.prepare_train_features,
         batched=True,

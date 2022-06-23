@@ -39,7 +39,7 @@ def main():
     dset = loader.load_test_data()
     print(dset)
 
-    CPU_COUNT = multiprocessing.cpu_count() // 2
+    CPU_COUNT = 6
     MODEL_CATEGORY = model_args.model_category  ## roberta, t5, electra, bert, retro
 
     # -- Tokenizing & Encoding
