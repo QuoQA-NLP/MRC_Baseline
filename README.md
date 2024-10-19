@@ -1,40 +1,34 @@
-# 2022년 인공지능 온라인 경진대회 / 문서 검색 효율화를 위한 기계독해 문제 - 팀: QuoQA
+# 2022 NIPA AI Competition: Machine Reading Comprehension - Team: QuoQA
 
 
-## 프로젝트 개요
+## Project Overview
 
+The task is to find the answer to a question from a given text. Both answerable and unanswerable questions are present, and performance is evaluated based on Exact Match criteria. The machine reading comprehension is in the form of Extractive Question Answering, where the goal is to locate the answer span within the context.
 
-텍스트와 질문이 주어졌을 때 본문에서 질문의 답을 찾는 과제입니다. 답변이 불가능한 경우와 답변이 가능한 경우가 모두 존재하며, Exact Match를 기준으로 성능을 평가합니다. 기계독해는 Extractive Question Answering 형식으로써 Context 안에서 Answer Span을 찾는 것이 목표입니다.
+## Methodology and Reproduction Commands
 
+- The key idea is to determine both the answerability of the question and extract the answer string simultaneously using a single Transformer backbone model.
+- The [total loss](./models/roberta.py) is weighted average of answerability loss and the loss calculated from matching the start and end position of the answer string.
+- To train within the limited GPU VRAM resources, we applied techniques such as Gradient Accumulation and Gradient Checkpointing, which helped us to replicate performance in the platform's hardware provided by NIPA.
 
-## 사용방법론 및 재현 명령어
-
-- 해당 문단으로 답변 가능성을 판단하는 것과 답변 문자열을 추출하는 과정을 Transformer backbone model 단일 모델로써 동시에 수행하는 것이 핵심입니다.
-- 답변 가능성을 기준으로 산출한 loss와 문자열 시작점, 끝점이 일치하는지를 기준으로 산출한 loss를 가중평균합하여 [total loss](./models/roberta.py)를 산정합니다.
-- 한정된 GPU VRAM 자원에서 훈련시키기 위하여 Gradient Accumulation, Gradient Checkpoint를 사용했으며 이를 통해 성능 향상을 이뤄냈습니다.
-
-
-**훈련 명령어**
+**Train Script**
 `bash running_train_only.sh`
 
-**추론 명령어**
+**Inference Script**
 `bash running_inference_only.sh`
 
 
-## 기학습가중치(Pretrained Language Model)
+## Pretrained Language Model
 
-KLUE: Korean Language Understanding Evaluation(2021)에서 공개한 roberta-large 모델을 사용했습니다. (arXiv:2105.09680)
+We utilized RoBERTa-Large model proposed in KLUE: Korean Language Understanding Evaluation(2021) (arXiv:2105.09680). We used model weight in huggingface [🔗 klue/roberta-large](https://huggingface.co/klue/roberta-large).
 
-RoBERTa 모델을 선정한 이유는 다음과 같습니다.
-1. 답변 불가 항목과 응답 문자열을 벤치마크로 삼은 [SQuAD v2.0 Benchmark](https://paperswithcode.com/sota/question-answering-on-squad20), [KLUE Benchmark](https://klue-benchmark.com/tasks/72/leaderboard/task)에서 Roberta Backbone이 성능이 좋다는 것을 확인했습니다.
-2. #Trainable Params와 Num Layers를 따졌을 때 RoBERTa-large 모델이 KPFBert-base 등과 같은 base size 모델에 비해서 딥러닝 학습에 비교우위가 있을 것으로 예상했습니다.
-3. 팀 자체적으로 Train Dataset을 5 Fold로 나눠서 Evaluation Score을 산출했을 때 klue/roberta-large가 성능이 제일 우수하게 나왔습니다.
+The reasons for selecting the RoBERTa model are as follows:
 
-구체적으로 Huggingface에 업로드된 모델 가중치를 사용했습니다: [🔗 klue/roberta-large](https://huggingface.co/klue/roberta-large)
+1. We confirmed that the RoBERTa backbone performed well on benchmarks like the [SQuAD v2.0 Benchmark](https://paperswithcode.com/sota/question-answering-on-squad20), [KLUE Benchmark](https://klue-benchmark.com/tasks/72/leaderboard/task), which focus on unanswerable questions and answer strings.
+2. Based on the number of trainable parameters and layers, we anticipated that the RoBERTa-large model would have a comparative advantage in deep learning training compared to base-size models like KPFBert-base.
+3. When our team divided the training dataset into five folds and calculated the evaluation score, the klue/roberta-large model demonstrated the best performance.
 
-해당 pre-trained weight는 2021년 06월 15일에 공개되었습니다. 해당 PLM은 다음과 같은 데이터셋, 토크나이저, 모델 구조를 바탕으로 훈련이 되었습니다.
-
-- Pretrained Corpora (총 62GB)
+- Pretrained Corpora (62GB)
     - MODU Corpus
         - Korean Corpus containing formal articles and colloquial text released by the National Institute of Korean Language
     - CC-100-Kor
@@ -56,7 +50,7 @@ RoBERTa 모델을 선정한 이유는 다음과 같습니다.
 
 
 
-## 데이터셋
+## Dataset
 
 ```
 ../DATA
@@ -70,11 +64,11 @@ RoBERTa 모델을 선정한 이유는 다음과 같습니다.
     - 'test.json'를 Huggingface의 datasets.Dataset 클래스로 변환한다.
     - 앞서 Finetuning한 RobertaForV2QuestionAnswering 모델을 바탕으로 'FINAL_SUBMISSION.csv' 파일을 생성한다.
     
-## 하드웨어
+## Competition Hardware for Training & Inference, provided by NIPA
 
 `CPU 10C, Nvidia T4 GPU x 1, 90MEM, 1TB`
 
-## 디렉토리 구조
+## Directory Structure
 
 ```
 USER/
@@ -104,7 +98,7 @@ USER/
 │   └── metric.py
 │
 ├── exps
-│   ├── checkpoint-125/ *하단 상세 기술*
+│   ├── checkpoint-125/
 │   ├── checkpoint-250/
 │   ├── checkpoint-375/
 │   ├── checkpoint-500/
@@ -135,131 +129,136 @@ USER/
 
 - `running_train_only.sh`
 
-  - 모델 학습하기 위한 shell script 파일입니다.
-  - 훈련에 필요한 argument는 아래를 참조하시기 바랍니다.
+  - This is a shell script file used for training the model.
+  - Please refer to the arguments below for the required training parameters.
 
 - `running_inference_only.sh`
 
-  - 모델 가중치 파일로 추론하기 위한 shell script 파일입니다.
-  - 추론에 필요한 argument는 아래를 참조하시기 바랍니다.
+  - This is a shell script file used for inference with the model's weight files.
+  - Please refer to the arguments below for the necessary inference parameters.
 
 - `train.py`
 
-  - 모델 학습을 실행하는 코드입니다.
-  - 저장된 model checkpoint 가중치 파일은 `exps/` 폴더에 있습니다.
-  - 최종 추론에 쓰이는 모델 가중치 파일은 `RESULT/` 폴더에 있습니다.
+  - This code runs the model training process.
+  - The saved model checkpoint weight files are located in the `exps/` folder.
+  - The final model weight files used for inference are stored in the `RESULT/` folder.
 
 - `inference.py`
 
-  - 학습된 model 가중치를 통해 prediction하고, 예측한 결과를 csv 파일로 저장하는 코드입니다.
-  - 저장된 최종 submission 파일은 `RESULT/` 폴더에 있습니다.
+  - This code performs predictions using the trained model weights and saves the predicted results in a CSV file.
+  - The final submission file is stored in the `RESULT/` folder.
 
 - `trainer.py`
 
-  - Huggingface의 Trainer class를 상속받아 trainer를 구현한 파일입니다.
-  - compute_loss, evaluate, predict 함수를 custom하게 변경했습니다. 
+  - This file implements a custom trainer by inheriting Huggingface's `Trainer` class.
+  - The functions `compute_loss`, `evaluate`, and `predict` have been customized.
 
 - `arguments.py`
 
-  - 학습 및 추론에 필요한 arguments 관련 class를 정의한 파일입니다.
-  - arguments의 종류, 기본값, help message 등을 정의했습니다.
+  - This file defines the classes for the arguments needed for training and inference.
+  - It specifies the types of arguments, default values, and help messages.
 
 - `question_ids.json`
 
-  - 재현을 위해서 학습할 때의 train data의 id 리스트를 저장하고 이를 이용해서 /DATA/train.json에 있는 데이터를 정렬하였습니다.
+  - To ensure reproducibility, this file stores the ID list of the training data used during training and arranges the data from `/DATA/train.json` accordingly.
 
 - `models/`
 
-  - 모델 class를 구현한 파일들이 있는 디렉토리입니다.
-	- 최종 모델은 `roberta.py`에 있는 RobertaForV2QuestionAnswering class만 사용했습니다.
-	- 이 외에 `output.py`에서 모델 출력물 class를 구현했습니다.
+  - This directory contains the files implementing model classes.
+  - The final model used is the `RobertaForV2QuestionAnswering` class from `roberta.py`.
+  - In addition, `output.py` implements the output class for the model.
 
 - `utils/`
-	  - 데이터셋 전처리, 모델 입력 데이터 전/후처리, 평가지표 파일들이 있는 디렉토리입니다.
-	- `encoder.py`
-		- 데이터를 tokenize하고 is_impossible, 정답 index 등을 구하는 Encoder class를 정의한 파일입니다.
-	- `loader.py`
-	    - train, test 데이터가 있는 /DATA 디렉토리에서 json 파일인 원시 데이터를 불러오고 Huggingface의 Datasets 클래스에 맞게 형식을 변형하는 클래스가 있는 파일입니다.
-	- `preprocessor.py`
-		- 정답이 없는 경우, 정답이 2개 이상인 경우를 처리하는 Preprocessor class를 정의한 파일입니다.
-	- `postprocessor.py`
-		- 모델 출력을 기반으로 최종 prediction을 구하고 포맷에 맞춰 출력하는 함수를 정의한 파일입니다.
-		- Konlpy의 형태소 분석기 mecab을 활용하여 형태소 분석 후, 끝에 조사 및 앞뒤에 특수 문자 제거 (mecab version: mecab of 0.996/ko-0.9.2)
-	- `metric.py`
-		- 모델을 평가하기 위한 평가지표 Metric class를 정의한 파일입니다.
 
+  - This directory contains files for dataset preprocessing, input/output processing for the model, and evaluation metrics.
+  
+  - `encoder.py`
+    - Defines the `Encoder` class, which tokenizes data and calculates the `is_impossible` flag and answer indices.
+  
+  - `loader.py`
+    - Contains a class that loads raw JSON data from the `/DATA` directory (for train and test) and converts it into a format compatible with Huggingface's `Datasets` class.
+  
+  - `preprocessor.py`
+    - Defines the `Preprocessor` class to handle cases where there is no answer or when there are multiple answers.
+  
+  - `postprocessor.py`
+    - Defines functions to generate the final predictions based on model outputs and formats them for output.
+    - Uses the Konlpy's morphological analyzer `mecab` for morphological analysis and removes unnecessary particles and special characters (mecab version: 0.996/ko-0.9.2).
+  
+  - `metric.py`
+    - Defines the `Metric` class for evaluating the model.
 
 - `exps/`
 
-    - train.py를 실행할 시, 훈련될 때마다 생성되는 모델 checkpoint를 저장하는 디렉토리입니다.
+  - This directory stores the model checkpoints generated during training when running `train.py`.
 
 - `RESULT/`
-    
-    - train.py를 통해 학습된 최종 모델 checkpoint 가중치 파일을 저장하는 디렉토리입니다.
 
-    - inference.py를 통해 Test data에 대해서 모델이 예측한 결과를 저장하는 디렉토리입니다.
+  - This directory stores the final model checkpoint weight files after training with `train.py`.
 
-    - `final_submission.csv`
-        - 최종 예측값이 저장된 submission 파일입니다.
+  - It also stores the results of the model's predictions on the test data generated by `inference.py`.
+
+  - `final_submission.csv`
+    - The submission file containing the final predictions is saved here.
         
-    - `checkpoint-875/`
-        - 최종 모델 가중치가 저장된 디렉토리입니다.
-        - `pytorch_model.bin`
-            - 모델 가중치가 저장된 파일입니다.
-        - `config.json`
-            - 모델에 대한 전반적인 특징 및 경로가 적혀있는 파일입니다.
-        - `optimizer.pt`
-            - optimizer weight를 담은 파일입니다.
-        - `rng_state.pth`
-            - python, numpy, cpu 정보를 담은 파일입니다.
-        - `scheduler.pt`
-            - scheduler weight를 담은 파일입니다.
-        - `special_tokens_map.json`
-            - tokenizer에서 사용하는 special token을 담은 파일입니다.
-        - `tokenizer_config.json`
-            - tokenizer의 special token, class 및 모델 이름 정보 담은 파일입니다.
-        - `tokenizer.json`
-            - tokenizer의 각 vocab id 정보를 담은 파일입니다.
-        - `trainer_state.json`
-            - 각 log step 당, learning rate나 loss, eval 정보 등을 담은 파일입니다.
-        - `training_args.bin`
-            - train argument를 담은 파일입니다.
-        - `vocab.txt`
-            - tokenizer에 다루는 문자들을 담은 파일입니다.
+  - `checkpoint-875/`
+    - Directory where the final model weights are saved.
+    - `pytorch_model.bin`
+        - File containing the model's weights.
+    - `config.json`
+        - File containing general information and paths related to the model.
+    - `optimizer.pt`
+        - File containing the optimizer weights.
+    - `rng_state.pth`
+        - File containing Python, NumPy, and CPU state information.
+    - `scheduler.pt`
+        - File containing the scheduler weights.
+    - `special_tokens_map.json`
+        - File containing the special tokens used by the tokenizer.
+    - `tokenizer_config.json`
+        - File containing information about the special tokens, class, and model name used by the tokenizer.
+    - `tokenizer.json`
+        - File containing each vocabulary ID used by the tokenizer.
+    - `trainer_state.json`
+        - File containing logs on learning rate, loss, evaluation information, etc., for each log step.
+    - `training_args.bin`
+        - File containing the training arguments.
+    - `vocab.txt`
+        - File containing the characters handled by the tokenizer.
 
 
 ## Arguments
 
-### running_train_only.sh Argument 설명
+### Explanation of Arguments for `running_train_only.sh`
 
-|          argument           | description                                               |
-| :-------------------------: | :-------------------------------------------------------- |
-|          do_train           | 모델을 훈련할지 여부 결정합니다.                          |
-|         group_name          | wandb 그룹 이름 지정합니다.                               |
-|          data_path          | Nipa dataset 선택합니다.                                  |
-|       use_validation        | validation을 수행할지 여부 결정                           |
-|             PLM             | 모델 PLM 결정합니다.                                      |
-|       model_category        | models 폴더 안에 사용할 파일 선택합니다.                  |
-|         model_name          | model_category에서 선택한 파일에서 세부 class 선택합니다. |
-|         max_length          | 최대 길이 지정합니다.                                     |
-|        save_strategy        | step or epoch 기준 등으로 저장하는 방식을 정합니다.       |
-|      save_total_limit       | 최대 checkpoint 저장 갯수를 지정합니다.                   |
-|        learning_rate        | 훈련 learning rate를 지정합니다.                          |
-| per_device_train_batch_size | train batch size를 지정합니다.                            |
-| per_device_eval_batch_size  | eval batch size를 지정합니다.                             |
-| gradient_accumulation_steps | gradient accumulation 수를 정합니다.                      |
-|   gradient_checkpointing    | gradient checkpoint 여부를 정합니다.                      |
-|          max_steps          | 학습 최대 step을 지정합니다.                              |
+|        Argument         | Description                                                 |
+| :---------------------: | :---------------------------------------------------------- |
+|        do_train         | Determines whether to train the model.                      |
+|       group_name        | Specifies the wandb group name.                             |
+|        data_path        | Selects the Nipa dataset.                                   |
+|     use_validation      | Determines whether to perform validation.                   |
+|           PLM           | Specifies the model PLM to use.                             |
+|     model_category      | Selects the file to use from the `models` folder.           |
+|       model_name        | Specifies the detailed class from the selected file in `model_category`. |
+|       max_length        | Specifies the maximum sequence length.                      |
+|      save_strategy      | Specifies the save strategy, such as by step or epoch.       |
+|    save_total_limit     | Sets the maximum number of checkpoints to save.             |
+|      learning_rate      | Specifies the learning rate for training.                   |
+| per_device_train_batch_size | Sets the train batch size.                               |
+| per_device_eval_batch_size  | Sets the evaluation batch size.                          |
+| gradient_accumulation_steps | Specifies the number of gradient accumulation steps.     |
+|   gradient_checkpointing  | Determines whether to enable gradient checkpointing.       |
+|        max_steps        | Specifies the maximum number of training steps.             |
 
 
-### running_inference_only.sh Argument 설명
+### Explanation of Arguments for `running_inference_only.sh`
 
-|    argument    | description                                               |
-| :------------: | :-------------------------------------------------------- |
-|   do_predict   | 주어진 데이터에 대해 예측할지 말지를 결정합니다.          |
-|      PLM       | 원하는 가중치 모델을 가져옵니다.                          |
-| model_category | models 폴더 안에 사용할 파일 선택합니다.                  |
-|   model_name   | model_category에서 선택한 파일에서 세부 class 선택합니다. |
-|   max_length   | 최대 길이 지정합니다.                                     |
-|   output_dir   | 예측값을 저장할 경로를 설정합니다.                        |
-|   file_name    | 예측값에 대한 파일 이름을 지정합니다.                     |
+|      Argument     | Description                                                 |
+| :---------------: | :---------------------------------------------------------- |
+|    do_predict     | Determines whether to run predictions on the given data.     |
+|       PLM         | Loads the desired pre-trained model weights.                 |
+|  model_category   | Selects the file to use from the `models` folder.            |
+|    model_name     | Specifies the detailed class from the selected file in `model_category`. |
+|    max_length     | Specifies the maximum sequence length.                      |
+|    output_dir     | Sets the path where prediction outputs will be saved.       |
+|    file_name      | Specifies the file name for the prediction outputs.         |
