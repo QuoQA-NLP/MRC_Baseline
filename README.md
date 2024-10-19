@@ -3,7 +3,9 @@
 
 ## Project Overview
 
-The task is to find the answer to a question from a given text. Both answerable and unanswerable questions are present, and performance is evaluated based on Exact Match criteria. The machine reading comprehension is in the form of Extractive Question Answering, where the goal is to locate the answer span within the context.
+The task is to find the answer to a question from a given text. Both answerable and unanswerable questions are present, and performance is evaluated based on Exact Match criteria. The machine reading comprehension is in the form of Extractive Question Answering, where the goal is to locate the answer span within the context. 
+
+**One of the biggest challenges of the competition was that it wasn't just a contest between startups and other companies, but also that the computational hardware for both training and inference was limited to a 10-core CPU and an Nvidia T4 GPU**. The repository below provides instructions on how to replicate the 2nd place solution from the NIPA AI competition.
 
 ## Methodology and Reproduction Commands
 
@@ -59,11 +61,11 @@ The reasons for selecting the RoBERTa model are as follows:
 |    +- train.json
 ```
 
-    - 'train.json'를 Huggingface의 datasets.Dataset 클래스로 변환한다.
-    - Dataset 클래스로 변환된 train dataset을 바탕으로 RobertaForV2QuestionAnswering을 파인튜닝을 진행한다.
-    - 'test.json'를 Huggingface의 datasets.Dataset 클래스로 변환한다.
-    - 앞서 Finetuning한 RobertaForV2QuestionAnswering 모델을 바탕으로 'FINAL_SUBMISSION.csv' 파일을 생성한다.
-    
+    - Convert `train.json` into the Huggingface `datasets.Dataset` class.
+    - Fine-tune the `RobertaForV2QuestionAnswering` model using the train dataset converted into the `Dataset` class.
+    - Convert `test.json` into the Huggingface `datasets.Dataset` class.
+    - Generate the `FINAL_SUBMISSION.csv` file based on the previously fine-tuned `RobertaForV2QuestionAnswering` model.
+
 ## Competition Hardware for Training & Inference, provided by NIPA
 
 `CPU 10C, Nvidia T4 GPU x 1, 90MEM, 1TB`
@@ -110,7 +112,7 @@ USER/
 │
 ├── mecab-ko-dic-2.1.1-20180720/
 │
-└── RESULT * Output 상세설명 *
+└── RESULT
     ├── final_submission.csv
     └── checkpoint-875
         ├── pytorch_model.bin
@@ -200,7 +202,7 @@ USER/
 
   - `final_submission.csv`
     - The submission file containing the final predictions is saved here.
-        
+    
   - `checkpoint-875/`
     - Directory where the final model weights are saved.
     - `pytorch_model.bin`
